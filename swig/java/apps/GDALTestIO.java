@@ -164,6 +164,7 @@ public class GDALTestIO implements Runnable
         gdal.AllRegister();
 
         testInt64();
+        testGetMemFileBuffer();
         
         int nbIters = 50;
 
@@ -229,5 +230,19 @@ public class GDALTestIO implements Runnable
             if (data1[i] != data2[i])
                 throw new RuntimeException("int64 write and read values are not the same "+data1[i]+" "+data2[i]);
         }
+    }
+
+    private static void testGetMemFileBuffer()
+    {
+        gdal.FileFromMemBuffer("/vsimem/test", new byte[] {1, 2, 3});
+        for(int iter = 0; iter < 2; iter++)
+        {
+            byte[] res = gdal.GetMemFileBuffer("/vsimem/test");
+            if (res.length != 3)
+                throw new RuntimeException("res.length != 3");
+            if (res[0] != 1 || res[1] != 2 || res[2] != 3)
+                throw new RuntimeException("res != {1, 2, 3}");
+        }
+        gdal.Unlink("/vsimem/test");
     }
 }
